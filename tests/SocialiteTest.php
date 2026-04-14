@@ -2,36 +2,43 @@
 
 namespace Tests;
 
-use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
-use Mockery as m;
+use Laravel\Socialite\Two\User;
 use Revolution\Socialite\WordPress\WordPressProvider;
 
 class SocialiteTest extends TestCase
 {
-    protected function tearDown(): void
-    {
-        m::close();
-
-        parent::tearDown();
-    }
-
-    public function test_instance()
+    public function test_instance(): void
     {
         $provider = Socialite::driver('wordpress');
 
         $this->assertInstanceOf(WordPressProvider::class, $provider);
     }
 
-    public function test_redirect()
+    public function test_redirect(): void
     {
-        $request = Request::create('foo');
-        $request->setLaravelSession($session = m::mock('Illuminate\Contracts\Session\Session'));
-        $session->shouldReceive('put')->once();
+        Socialite::fake('wordpress');
 
-        $provider = new WordPressProvider($request, 'client_id', 'client_secret', 'redirect');
-        $response = $provider->redirect();
+        $response = $this->get('/auth/redirect');
 
-        $this->assertStringStartsWith('http://localhost', $response->getTargetUrl());
+        $response->assertRedirect();
+    }
+
+    public function test_callback_user(): void
+    {
+        Socialite::fake('wordpress', (new User)->map([
+            'id' => 12345,
+            'name' => 'johndoe',
+            'nickname' => 'John Doe',
+            'email' => 'john@example.com',
+            'avatar' => 'https://example.com/avatar.jpg',
+        ]));
+
+        $response = $this->get('/auth/callback');
+
+        $response->assertOk();
+        $response->assertJsonPath('id', 12345);
+        $response->assertJsonPath('name', 'johndoe');
+        $response->assertJsonPath('email', 'john@example.com');
     }
 }
