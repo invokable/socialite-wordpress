@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1776164842">
-  <project timestamp="1776164842" name="Clover Coverage">
+<coverage generated="1776164891">
+  <project timestamp="1776164891" name="Clover Coverage">
     <package name="Revolution\Socialite\WordPress">
       <file name="/home/runner/work/socialite-wordpress/socialite-wordpress/src/WordPressProvider.php">
         <class name="Revolution\Socialite\WordPress\WordPressProvider" namespace="Revolution\Socialite\WordPress">
